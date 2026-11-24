@@ -92,12 +92,12 @@ With a local archive and a candidate **16-byte-aligned stored offset**, choose t
 ```text
 python -m fixture.rpf FILE OFFSET
 python -m fixture.rpf FILE OFFSET --paged
-python -m fixture.directory_probe FILE TABLE_START TABLE_END --base 0 --unit 1 --stride 8
+python -m fixture.directory_probe FILE TABLE_START TABLE_END --base 0 --unit 1 --stride 9 --count COUNT
 ```
 
 - **Adjacent streams:** the first command checks two zlib checksums and their alignment padding, then prints both half-open stored ranges.
 - **Paged resource:** the second follows full 64 KiB decoded pages through a short final page. It reports stored span, decoded size, and page count.
-- **Directory hypothesis:** the third reads candidate offset/length pairs from consecutive rows before inspecting their payloads. Both predictions must agree with independently measured stream ends. The base, unit, and stride shown are hypotheses to test against the candidate layout.
+- **Directory hypothesis:** the third reads candidate offset/length pairs from consecutive rows before inspecting their payloads. Both predictions must agree with independently measured stream ends. The base, unit, and stride shown are hypotheses to test against the candidate layout. Retail RPF9 tables use 9- or 10-byte rows (low byte at `0x2c` is 1 or 2), padded to a multiple of 16. Pass the entry count from `0x24` as `--count` to reject a stride that does not fill the table exactly.
 
 A passing checksum identifies an intact stream. To identify the asset inside it, parse the decoded structure and cross-check an independent name, index, or typed reference. [Stream tests](fixture/test_rpf.py) · [Directory tests](fixture/test_directory_probe.py)
 
